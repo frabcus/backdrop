@@ -1,6 +1,9 @@
 import os
 import statsd as _statsd
 
+__title__ = 'backdrop'
+__version__ = '0.1.0'
+__author__ = 'GDS Team'
 
 __all__ = ['statsd']
 
