@@ -1,5 +1,5 @@
 from mock import Mock
-from backdrop import StatsClient
+from backdrop.monitoring import StatsClient
 
 
 class TestStatsd(object):
