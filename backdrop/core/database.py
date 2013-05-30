@@ -2,7 +2,7 @@ import logging
 from bson import Code
 import pymongo
 from pymongo.errors import AutoReconnect
-from backdrop import statsd
+from backdrop.monitoring import statsd
 from backdrop.core import backdrop_time as backdrop_time
 
 

@@ -1,7 +1,7 @@
 from os import getenv
 
 from flask import Flask, request, jsonify, render_template, g
-from backdrop import statsd
+from backdrop.monitoring import statsd
 from backdrop.core.parse_csv import parse_csv
 from backdrop.core.log_handler \
     import create_request_logger, create_response_logger
