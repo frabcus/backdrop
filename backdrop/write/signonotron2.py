@@ -7,18 +7,19 @@ log = getLogger(__name__)
 
 
 class Signonotron2(object):
-    def __init__(self, client_id, client_secret, base_url):
+    def __init__(self, client_id, client_secret, signon_url, base_url):
         self.signon = OAuth2Service(
             client_id=client_id,
             client_secret=client_secret,
             name="backdrop",
-            authorize_url="%s/oauth/authorize" % base_url,
-            access_token_url="%s/oauth/token" % base_url,
-            base_url=base_url
+            authorize_url="%s/oauth/authorize" % signon_url,
+            access_token_url="%s/oauth/token" % signon_url,
+            base_url=signon_url
         )
+        self.base_url = base_url
 
     def __redirect_uri(self):
-        return url_for("oauth_authorized", _external=True)
+        return self.base_url + url_for("oauth_authorized")
 
     def __json_access_token(self, something):
         return json.loads(something)

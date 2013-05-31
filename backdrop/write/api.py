@@ -1,6 +1,6 @@
 from os import getenv
 
-from flask import Flask, request, jsonify, render_template, g
+from flask import Flask, request, jsonify, render_template, g, url_for
 from backdrop import statsd
 from backdrop.core.parse_csv import parse_csv
 from backdrop.core.log_handler \
@@ -27,7 +27,7 @@ def environment():
     return getenv("GOVUK_ENV", "development")
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/performance/static")
 
 # Configuration
 app.config.from_object(
@@ -65,7 +65,7 @@ def exception_handler(e):
     return jsonify(status='error', message=name), code
 
 
-@app.route("/", methods=['GET'])
+@app.route("/performance", methods=['GET'])
 def index():
     if use_single_sign_on(app):
         return render_template("index.html")
