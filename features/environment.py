@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-from backdrop.core.log_handler import get_log_file_handler
 from features.support.splinter_client import SplinterClient
 
 sys.path.append(
@@ -15,7 +14,6 @@ from support.flask_test_client import FlaskTestClient
 from backdrop.read import api as read_api
 from backdrop.write import api as write_api
 # pick one for test configuration, if they don't match things will fail
-from backdrop.write.config import test as config
 
 
 handler = logging.FileHandler('log/behave.log')
@@ -53,9 +51,9 @@ def create_client(feature):
     if 'use_write_api_client' in feature.tags:
         return FlaskTestClient(write_api)
     if 'use_http_client' in feature.tags:
-        return HTTPTestClient(config.DATABASE_NAME)
+        return HTTPTestClient(write_api.app.config['DATABASE_NAME'])
     if 'use_splinter_client' in feature.tags:
-        return SplinterClient(config.DATABASE_NAME)
+        return SplinterClient(write_api.app.config['DATABASE_NAME'])
 
     raise AssertionError(
         "Test client not selected! Please annotate the failing feature with "
