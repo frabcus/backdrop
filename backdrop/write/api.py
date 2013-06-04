@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, render_template, g
 from .. import statsd
 from ..core.parse_csv import parse_csv
 from ..core.errors import ParseError, ValidationError
-from ..core import database, log_handler, records, cache_control
+from ..core import database, log_handler, records, cache_control, config
 from ..core.bucket import Bucket
 from . import sign_on
 from ..core.validation import bucket_is_valid
@@ -19,16 +19,10 @@ def setup_logging():
                                getenv("GOVUK_ENV", "development"))
 
 
-def environment():
-    return getenv("GOVUK_ENV", "development")
-
-
 app = Flask(__name__)
 
 # Configuration
-app.config.from_object(
-    "backdrop.write.config.%s" % environment()
-)
+config.load(app, 'write')
 
 db = database.Database(
     app.config['MONGO_HOST'],

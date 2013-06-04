@@ -5,7 +5,7 @@ from os import getenv
 from bson import ObjectId
 from flask import Flask, jsonify, request
 
-from ..core import database, log_handler, cache_control
+from ..core import database, log_handler, cache_control, config
 from ..read.query import Query
 from ..core.bucket import Bucket
 from .validation import validate_request_args
@@ -18,9 +18,7 @@ def setup_logging():
 app = Flask(__name__)
 
 # Configuration
-app.config.from_object(
-    "backdrop.read.config.%s" % getenv("GOVUK_ENV", "development")
-)
+config.load(app, 'read')
 
 db = database.Database(
     app.config['MONGO_HOST'],
