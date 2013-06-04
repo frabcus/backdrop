@@ -1,18 +1,14 @@
 from os import getenv
 
 from flask import Flask, request, jsonify, render_template, g
-from backdrop import statsd
-from backdrop.core.parse_csv import parse_csv
-from backdrop.core.log_handler \
-    import create_request_logger, create_response_logger
-from backdrop.write import sign_on
-from backdrop.write.sign_on import use_single_sign_on
 
+from .. import statsd
+from ..core.parse_csv import parse_csv
 from ..core.errors import ParseError, ValidationError
-from ..core.validation import bucket_is_valid
 from ..core import database, log_handler, records, cache_control
 from ..core.bucket import Bucket
-
+from . import sign_on
+from ..core.validation import bucket_is_valid
 from .validation import bearer_token_is_valid
 
 MAX_UPLOAD_SIZE = 100000
@@ -42,10 +38,10 @@ db = database.Database(
 
 setup_logging()
 
-app.before_request(create_request_logger(app))
-app.after_request(create_response_logger(app))
+app.before_request(log_handler.create_request_logger(app))
+app.after_request(log_handler.create_response_logger(app))
 
-if use_single_sign_on(app):
+if sign_on.use_single_sign_on(app):
     app.secret_key = app.config['SECRET_KEY']
     sign_on.setup(app)
 
@@ -67,7 +63,7 @@ def exception_handler(e):
 
 @app.route("/", methods=['GET'])
 def index():
-    if use_single_sign_on(app):
+    if sign_on.use_single_sign_on(app):
         return render_template("index.html")
     else:
         return "Backdrop is running."

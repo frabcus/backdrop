@@ -1,17 +1,14 @@
 import datetime
 import json
 from os import getenv
+
 from bson import ObjectId
-
 from flask import Flask, jsonify, request
-from backdrop.core.log_handler \
-    import create_request_logger, create_response_logger
-from backdrop.read.response import SimpleData, PeriodData, WeeklyGroupedData
-from backdrop.read.query import Query
 
-from .validation import validate_request_args
 from ..core import database, log_handler, cache_control
+from ..read.query import Query
 from ..core.bucket import Bucket
+from .validation import validate_request_args
 
 
 def setup_logging():
@@ -33,8 +30,8 @@ db = database.Database(
 
 setup_logging()
 
-app.before_request(create_request_logger(app))
-app.after_request(create_response_logger(app))
+app.before_request(log_handler.create_request_logger(app))
+app.after_request(log_handler.create_response_logger(app))
 
 
 class JsonEncoder(json.JSONEncoder):
