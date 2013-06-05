@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 TOKENS = {
     '_foo_bucket': '_foo_bucket-bearer-token',
     'bucket': 'bucket-bearer-token',
@@ -15,4 +13,3 @@ TOKENS = {
     'deposit_foreign_marriage_journey': 'deposit_foreign_marriage_journey-bearer-token',
 }
 PERMISSIONS = {}
->>>>>>> master
