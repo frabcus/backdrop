@@ -1,4 +1,6 @@
 SINGLE_SIGN_ON = True
+ALLOW_TEST_SIGNIN = True
+
 SECRET_KEY = "something unique and secret"
 CLIENT_ID = "it's not important here"
 CLIENT_SECRET = "it's not important here"
@@ -16,4 +18,8 @@ TOKENS = {
     'reptiles': 'reptiles-bearer-token',
     'month': 'month-bearer-token',
     'month_no_raw_access': 'month_no_raw_access-bearer-token'
+}
+PERMISSIONS = {
+    'my_bucket': ['test@example.com'],
+    'foo': ['test@example.com']
 }

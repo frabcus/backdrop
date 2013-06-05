@@ -1,6 +1,6 @@
 from os import getenv
 
-from flask import Flask, request, jsonify, render_template, g
+from flask import Flask, request, jsonify, render_template, g, session, abort
 
 from .. import statsd
 from ..core.parse_csv import parse_csv
@@ -10,6 +10,8 @@ from ..core.bucket import Bucket
 from . import sign_on
 from ..core.validation import bucket_is_valid
 from .validation import bearer_token_is_valid
+from .permissions import Permissions
+from .signonotron2 import protected
 
 MAX_UPLOAD_SIZE = 100000
 
@@ -35,6 +37,7 @@ setup_logging()
 app.before_request(log_handler.create_request_logger(app))
 app.after_request(log_handler.create_response_logger(app))
 
+app.permissions = Permissions(app.config["PERMISSIONS"])
 if sign_on.use_single_sign_on(app):
     app.secret_key = app.config['SECRET_KEY']
     sign_on.setup(app)
@@ -100,9 +103,14 @@ def post_to_bucket(bucket_name):
 
 
 @app.route('/<bucket_name>/upload', methods=['GET', 'POST'])
+@protected
 def upload(bucket_name):
     if not bucket_is_valid(bucket_name):
         return _invalid_upload("Bucket name is invalid")
+
+    current_user_email = session.get("user").get("email")
+    if not app.permissions.allowed(current_user_email, bucket_name):
+        return abort(404)
 
     if request.method == 'GET':
         return render_template("upload_csv.html")
