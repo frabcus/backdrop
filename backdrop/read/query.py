@@ -78,7 +78,6 @@ class Query(_Query):
         return Query(**args)
 
     def to_mongo_query(self):
-
         mongo_query = {}
         if self.start_at or self.end_at:
             mongo_query["_timestamp"] = {}
@@ -90,16 +89,26 @@ class Query(_Query):
             mongo_query.update(self.filter_by)
         return mongo_query
 
-    def execute(self, repository):
+    @property
+    def query_type(self):
         if self.group_by and self.period:
-            result = self.__execute_period_group_query(repository)
+            return "period_grouped"
         elif self.group_by:
-            result = self.__execute_grouped_query(repository)
+            return "grouped"
         elif self.period:
-            result = self.__execute_period_query(repository)
+            return "period"
         else:
-            result = self.__execute_query(repository)
-        return result
+            return "standard"
+
+    def execute(self, repository):
+        method = {
+            "period_grouped": self.__execute_period_group_query,
+            "grouped": self.__execute_grouped_query,
+            "period": self.__execute_period_query,
+            "standard": self.__execute_query,
+        }[self.query_type]
+
+        return method(repository)
 
     def __get_period_key(self):
         return self.period.start_at_key

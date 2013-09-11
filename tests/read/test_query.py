@@ -1,10 +1,10 @@
-from unittest import TestCase
 from hamcrest import *
+from backdrop.core.timeseries import WEEK, MONTH
 from backdrop.read.query import Query
 from tests.support.test_helpers import d_tz
 
 
-class TestBuild_query(TestCase):
+class TestBuild_query(object):
     def test_build_query_with_start_at(self):
         query = Query.create(start_at=d_tz(2013, 3, 18, 18, 10, 05))
         assert_that(query.to_mongo_query(), is_(
@@ -34,3 +34,21 @@ class TestBuild_query(TestCase):
         query = Query.create(filter_by= [[ "foo", "bar" ], ["foobar", "yes"]])
         assert_that(query.to_mongo_query(),
                     is_({ "foo": "bar", "foobar": "yes" }))
+
+
+class TestQuery(object):
+    def test_query_type_period_grouped(self):
+        query = Query.create(group_by = "foo", period = WEEK)
+        assert_that(query.query_type, is_("period_grouped"))
+
+    def test_query_type_grouped(self):
+        query = Query.create(group_by = "foo")
+        assert_that(query.query_type, is_("grouped"))
+
+    def test_query_type_period(self):
+        query = Query.create(period = MONTH)
+        assert_that(query.query_type, is_("period"))
+
+    def test_query_type_standard(self):
+        query = Query.create()
+        assert_that(query.query_type, is_("standard"))
