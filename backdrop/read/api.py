@@ -101,6 +101,7 @@ def query(bucket_name):
 
         try:
             result_data = bucket.query(Query.parse(request.args)).data()
+            # result_data = record_repository.query(bucket, Query.parse(request.args))
         except InvalidOperationError:
             return log_error_and_respond('invalid collect for that data', 400)
 

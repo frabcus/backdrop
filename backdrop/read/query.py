@@ -100,6 +100,13 @@ class Query(_Query):
         else:
             return "standard"
 
+    # @property
+    # def response_class(self):
+    #     # TODO: handle this
+    #     return {
+    #         "period_grouped": 
+    #     }
+
     def execute(self, repository):
         method = {
             "period_grouped": self.__execute_period_group_query,

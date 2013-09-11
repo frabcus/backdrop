@@ -1,5 +1,6 @@
-from backdrop.core.repository import BucketRepository
+from backdrop.core.repository import BucketRepository, RecordRepository
 from backdrop.core.bucket_new import Bucket
+from backdrop.read.query import Query
 from hamcrest import assert_that, equal_to, is_
 from mock import Mock
 
@@ -65,3 +66,55 @@ class TestBucketRepository(object):
         bucket = bucket_repo.retrieve(name="bucket_name")
 
         assert_that(bucket, equal_to(Bucket("bucket_name", True)))
+
+
+class TestRecordRepository(object):
+    def setUp(self):
+        self.db = Mock()
+        self.collection = Mock()
+
+        self.db.get_collection.return_value = self.collection
+        self.record_repository = RecordRepository(self.db)
+
+    def test_query(self):
+        self.collection.find.return_value = [{
+            "name": "foo"
+        }]
+
+        bucket = Bucket(name="bucket_name", raw_queries_allowed=True)
+        query = Query.create()
+
+        results = self.record_repository.query(bucket, query)
+
+        self.collection.find.assert_called_with({})
+
+        assert_that(results, is_([{"name":"foo"}]))
+
+    def test_query_with_filter_by(self):
+        self.collection.find.return_value = [{
+            "name": "foo"
+        }]
+
+        bucket = Bucket(name="bucket_name", raw_queries_allowed=True)
+        query = Query.create(filter_by=[("foo", "bar")])
+
+        results = self.record_repository.query(bucket, query)
+
+        self.collection.find.assert_called_with({"foo":"bar"})
+
+        assert_that(results, is_([{"name":"foo"}]))
+
+    def test_query_filter_by_and_sort_by(self):
+        self.collection.find.return_value = [
+            { "name": "foo" },
+            { "name": "bar" }
+        ]
+
+        bucket = Bucket(name="bucket_name", raw_queries_allowed=True)
+        query = Query.create(filter_by=[("foo", "bar")])
+        #sort=["name", "ascending"]
+        results = self.record_repository.query(bucket, query)
+
+        self.collection.find.assert_called_with({"foo":"bar"}, ["name", "ascending"])
+
+        assert_that(results, is_([{"name":"bar"},{"name":"foo"}]))
